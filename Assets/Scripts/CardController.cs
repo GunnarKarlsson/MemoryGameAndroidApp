@@ -14,6 +14,7 @@ public class CardController : MonoBehaviour {
 	public int gridHeight;
 	private int cardWidth;
 	private int cardHeight;
+	public GameObject board;
 
 	// Use this for initialization
 	void Start () {
@@ -63,8 +64,12 @@ public class CardController : MonoBehaviour {
 					cards.Add (card);
 			}
 		}
-	}
 
+		float offsetX = -(gridWidth/2.0f)*(cardWidth - gridPadding) + cardWidth/2.0f;
+		float offsetY = -(gridHeight/2.0f)*(cardHeight - gridPadding) + cardHeight/2.0f;
+
+		board.transform.position = new Vector3 (offsetX, offsetY, 0f);
+	}
 
 	// Update is called once per frame
 	void Update () {
