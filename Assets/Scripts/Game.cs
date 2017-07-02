@@ -24,6 +24,7 @@ public class Game : MonoBehaviour {
 
 	bool isTouching = false;
 	bool isUncovering = false;
+	bool isGameOver = false;
 
 	void Start () {
 		deck = new List<GameObject> ();
@@ -42,9 +43,9 @@ public class Game : MonoBehaviour {
 
 	void ClearAll() {
 		Debug.Log ("ClearAll()");
-
-
-		for (int j = deck.Count; j > 0; j--) {
+		Debug.Log("deck.Count: " + deck.Count);
+		for (int j = deck.Count-1; j == 0; j--) {
+			Debug.Log("j: " + j);
 			DestroyImmediate (deck [j]);
 		}
 
@@ -134,7 +135,11 @@ public class Game : MonoBehaviour {
 		
 	// Update is called once per frame
 	void Update () {
-		
+
+		if (isGameOver) {
+			return;
+		}
+
 		//if ((Input.GetMouseButtonDown (0) || Input.touchCount > 0)) {
 		if ((Input.GetMouseButtonDown (0) || Input.touchCount > 0) && !isTouching && !isUncovering && selectedCards.Count < 2) {
 
@@ -161,6 +166,8 @@ public class Game : MonoBehaviour {
 			isTouching = false;
 		}
 	}
+
+
 
 	void StartUncoverCard(GameObject card) {
 		StartCoroutine (UncoverCard(card, true));
@@ -216,15 +223,22 @@ public class Game : MonoBehaviour {
 				selectedCards[0].GetComponent<CardScript>().Solved = true;
 				selectedCards[1].GetComponent<CardScript>().Solved = true;
 
+				Debug.Log ("matchedCards.Count: " + matchedCards.Count);
+				Debug.Log ("numPairds * 2: " + (numPairs * 2));
 				if (matchedCards.Count == numPairs * 2) {
 						yield return new WaitForSeconds (1.0f);
 						textMatchedPairs.text = "Matched Pairs: " + (matchedCards.Count / 2).ToString() + ". All cards matched :-)";
+						isGameOver = true;
 						ClearAll ();
 					}
 				}
-				selectedCards[0].GetComponent<CardScript>().Selected = false;
-				selectedCards[1].GetComponent<CardScript>().Selected = false;
-				selectedCards.Clear ();
+			if (selectedCards.Count > 0) {
+				selectedCards [0].GetComponent<CardScript> ().Selected = false;
+			}
+			if (selectedCards.Count > 1) {
+				selectedCards [1].GetComponent<CardScript> ().Selected = false;
+			}
+			selectedCards.Clear ();
 			}
 			yield return new WaitForSeconds(0.1f);
 
