@@ -51,11 +51,7 @@ public class CardController : MonoBehaviour {
 
 					card.tag = "Card";
 					card.transform.parent = transform;
-					//card.transform.position = transform.position;
-					//float posX  = transform.position.x + (i*cardWidth + gridPadding);
-					//float posY = transform.position.y + (i * cardHeight + gridPadding);
-					//Vector3 pos = new Vector3 (posX, posY, 0);
-					//card.transform.position = pos;
+
 					card.AddComponent<BoxCollider2D> ();
 					card.GetComponent<BoxCollider2D> ().size = new Vector2 (cardWidth, cardHeight);
 					float x = i * (cardWidth + gridPadding);
