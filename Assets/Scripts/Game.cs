@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Game : MonoBehaviour {
 
@@ -18,16 +19,29 @@ public class Game : MonoBehaviour {
 	private int cardHeight;
 	public GameObject board;
 
+	//UI
+	public Button playButton;
+	public Text textMatchedPairs;
+
 
 	void Start () {
 		deck = new List<GameObject> ();
 		selectedCards = new List<GameObject> ();
 		matchedCards = new List<GameObject> ();
+	}
 
+	public void OnClickPlay() {
+		playButton.gameObject.SetActive (false);
 		CreateDeck ();
 		ShuffleDeck ();
 		DealCards ();
 		PositionBoard ();
+	}
+
+	void ClearAll() {
+		deck.Clear ();
+		selectedCards.Clear ();
+		matchedCards.Clear ();
 	}
 
 	void PositionBoard() {
@@ -182,12 +196,20 @@ public class Game : MonoBehaviour {
 			CardScript scriptTwo = cardTwo.GetComponent<CardScript> ();
 			if (scriptOne.CardPairName.Equals (scriptTwo.CardPairName)) {
 				Debug.Log ("We have a match!");
+				matchedCards.Add (cardOne);
+				matchedCards.Add (cardTwo);
+				textMatchedPairs.text = "Matched Pairs: " + (matchedCards.Count / 2).ToString ();
 			} else {
 				Debug.Log ("Not a match");
 				StartCoroutine (UncoverCard (cardOne, false));
 				StartCoroutine (UncoverCard (cardTwo, false));
 			}
 			selectedCards.Clear ();
+		}
+
+		if (matchedCards.Count == numPairs * 2) {
+			textMatchedPairs.text = "Matched Pairs: " + (matchedCards.Count / 2).ToString() + ". All cards matched :-)";
+			ClearAll ();
 		}
 		yield return null;
 	}
