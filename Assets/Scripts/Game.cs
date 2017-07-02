@@ -23,7 +23,6 @@ public class Game : MonoBehaviour {
 	public Button playButton;
 	public Text textMatchedPairs;
 
-
 	void Start () {
 		deck = new List<GameObject> ();
 		selectedCards = new List<GameObject> ();
@@ -133,12 +132,14 @@ public class Game : MonoBehaviour {
 		
 	// Update is called once per frame
 	void Update () {
-		if((Input.GetMouseButtonDown(0) || Input.touchCount > 0)) {
-			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-			RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction);
+		
+		//if ((Input.GetMouseButtonDown (0) || Input.touchCount > 0)) {
+		if (Input.GetMouseButtonDown(0)|| Input.GetTouch(0).phase == TouchPhase.Began) {
+			Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
+			RaycastHit2D hit = Physics2D.Raycast (ray.origin, ray.direction);
 			// we hit a card
 			if (hit.collider != null) {
-				Debug.Log(hit.collider.gameObject.name);
+				Debug.Log (hit.collider.gameObject.name);
 				if (!isTurning) {
 					isTurning = true;
 					StartCoroutine (UncoverCard (hit.collider.gameObject, true));
