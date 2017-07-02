@@ -168,10 +168,10 @@ public class Game : MonoBehaviour {
 			yield break;
 		}
 		Debug.Log ("Not excitng Matchcard coroutine");
+		selectedCards.Add (cardGameObject);	
 
 		yield return new WaitForSeconds(1);
 
-		selectedCards.Add (cardGameObject);	
 		Debug.Log ("selectedCards.Count " + selectedCards.Count);
 
 		if (selectedCards.Count == 2) {
