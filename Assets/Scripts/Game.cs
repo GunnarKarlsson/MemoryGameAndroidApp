@@ -12,7 +12,6 @@ public class Game : MonoBehaviour {
 	List<GameObject> matchedCards;
 	public float uncoverTime = 1.0f;
 	public int gridPadding = 10;
-	private bool isTurning = false;
 	public int gridWidth = 4;
 	public int numPairs = 8;
 	private int cardWidth;
@@ -22,6 +21,9 @@ public class Game : MonoBehaviour {
 	//UI
 	public Button playButton;
 	public Text textMatchedPairs;
+
+	bool isTouching = false;
+	bool isUncovering = false;
 
 	void Start () {
 		deck = new List<GameObject> ();
@@ -134,22 +136,39 @@ public class Game : MonoBehaviour {
 	void Update () {
 		
 		//if ((Input.GetMouseButtonDown (0) || Input.touchCount > 0)) {
-		if (Input.GetMouseButtonDown(0)|| Input.GetTouch(0).phase == TouchPhase.Began) {
+		if ((Input.GetMouseButtonDown (0) || Input.touchCount > 0) && !isTouching && !isUncovering && selectedCards.Count < 2) {
+
+			isTouching = true;
+
 			Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
 			RaycastHit2D hit = Physics2D.Raycast (ray.origin, ray.direction);
 			// we hit a card
 			if (hit.collider != null) {
+				
 				Debug.Log (hit.collider.gameObject.name);
-				if (!isTurning) {
-					isTurning = true;
-					StartCoroutine (UncoverCard (hit.collider.gameObject, true));
-					StartCoroutine (MatchCard (hit.collider.gameObject));
+
+				if (!hit.collider.GetComponent<CardScript> ().Selected) {
+
+					if (!hit.collider.GetComponent<CardScript> ().Solved) {
+						StartUncoverCard (hit.collider.gameObject);
+						selectedCards.Add (hit.collider.gameObject);
+						hit.collider.gameObject.GetComponent<CardScript> ().Selected = true;
+
+					}
 				}
 			}
+		} else {
+			isTouching = false;
 		}
 	}
 
+	void StartUncoverCard(GameObject card) {
+		StartCoroutine (UncoverCard(card, true));
+	}
+
 	IEnumerator UncoverCard(GameObject cardGameObject, bool uncover){
+
+		isUncovering = true;
 
 		Debug.Log ("UncoverCard");
 
@@ -170,73 +189,45 @@ public class Game : MonoBehaviour {
 			if( ( (angle >= 90 && angle < 180) || (angle >= 270 && angle < 360) ) && !uncovered) {
 				uncovered = true;
 				for(int i = 0; i < card.childCount; i++) {
-					// reverse sorting order to show the otherside of the card
-					// otherwise you would still see the same sprite because they are sorted 
-					// by order not distance (by default)
 					Transform c = card.GetChild(i);
 					c.GetComponent<SpriteRenderer>().sortingOrder *= -1;
-
 					yield return null;
 				}
 			}
-
 			yield return null;
 		}
-		isTurning = false;
-		yield return 0;
-	}
-
-	IEnumerator MatchCard(GameObject cardGameObject) {
-
-		bool sameCardClicked = CheckIfSameCardClicked (cardGameObject);
-		if (sameCardClicked) {
-			selectedCards.Clear ();
-			Debug.Log ("Exiting MatchCard coroutine");
-			yield break;
-		}
-		Debug.Log ("Not excitng Matchcard coroutine");
-		selectedCards.Add (cardGameObject);	
-
-		yield return new WaitForSeconds(1);
-
-		Debug.Log ("selectedCards.Count " + selectedCards.Count);
 
 		if (selectedCards.Count == 2) {
-		
+			
 			GameObject cardOne = selectedCards [0];
 			GameObject cardTwo = selectedCards [1];
 			CardScript scriptOne = cardOne.GetComponent<CardScript> ();
 			CardScript scriptTwo = cardTwo.GetComponent<CardScript> ();
-			if (scriptOne.CardPairName.Equals (scriptTwo.CardPairName)) {
-				Debug.Log ("We have a match!");
+			if (!scriptOne.CardPairName.Equals (scriptTwo.CardPairName)) {
+				yield return new WaitForSeconds (0.5f);
+				StartUncoverCard (cardOne);
+				StartUncoverCard(cardTwo);
+				//StartCoroutine (UncoverCard (selectedCards [0], true));
+				//StartCoroutine (UncoverCard (selectedCards [1], true));
+			} else {
 				matchedCards.Add (cardOne);
 				matchedCards.Add (cardTwo);
 				textMatchedPairs.text = "Matched Pairs: " + (matchedCards.Count / 2).ToString ();
-			} else {
-				Debug.Log ("Not a match");
-				StartCoroutine (UncoverCard (cardOne, false));
-				StartCoroutine (UncoverCard (cardTwo, false));
+				selectedCards[0].GetComponent<CardScript>().Solved = true;
+				selectedCards[1].GetComponent<CardScript>().Solved = true;
+
+				if (matchedCards.Count == numPairs * 2) {
+						yield return new WaitForSeconds (1.0f);
+						textMatchedPairs.text = "Matched Pairs: " + (matchedCards.Count / 2).ToString() + ". All cards matched :-)";
+						ClearAll ();
+					}
+				}
+				selectedCards[0].GetComponent<CardScript>().Selected = false;
+				selectedCards[1].GetComponent<CardScript>().Selected = false;
+				selectedCards.Clear ();
 			}
-			selectedCards.Clear ();
-		}
+			yield return new WaitForSeconds(0.1f);
 
-		if (matchedCards.Count == numPairs * 2) {
-			textMatchedPairs.text = "Matched Pairs: " + (matchedCards.Count / 2).ToString() + ". All cards matched :-)";
-			ClearAll ();
+			isUncovering = false;
 		}
-		yield return null;
-	}
-
-	private bool CheckIfSameCardClicked(GameObject card) {
-
-		if (selectedCards.Count < 1) {
-			return false;
-		}
-
-		if (selectedCards [0] == card) {
-			return true;
-		} else {
-			return false;
-		}
-	}
 }
