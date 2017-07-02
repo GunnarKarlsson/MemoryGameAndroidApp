@@ -78,7 +78,8 @@
 -define:UNITY_EDITOR_64
 -define:UNITY_EDITOR_OSX
 -define:UNITY_TEAM_LICENSE
-'Assets/Scripts/CardController.cs'
+'Assets/Scripts/Card.cs'
+'Assets/Scripts/Game.cs'
 'Assets/old/Scripts/CardProperties.cs'
 'Assets/old/Scripts/Extensions.cs'
 'Assets/old/Scripts/GameController.cs'

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CardController : MonoBehaviour {
+public class Game : MonoBehaviour {
 
 	public Sprite[] frontSprites;
 	public Sprite backSprite;
@@ -59,6 +59,12 @@ public class CardController : MonoBehaviour {
 				cardBack.GetComponent<SpriteRenderer> ().sprite = backSprite;
 				cardBack.GetComponent<SpriteRenderer> ().sortingOrder = 1;
 
+				card.AddComponent<CardScript> ();
+				CardScript cardScript = card.GetComponent<CardScript> ();
+				cardScript.Solved = false;
+				cardScript.Selected = false;
+				cardScript.CardPairName = "CardName: " + i;//two cards will share name
+
 				cardWidth = (int)frontSprites[i].rect.width;
 				cardHeight = (int)frontSprites[i].rect.height;
 
@@ -109,13 +115,16 @@ public class CardController : MonoBehaviour {
 				Debug.Log(hit.collider.gameObject.name);
 				if (!isTurning) {
 					isTurning = true;
-					StartCoroutine (uncoverCard (hit.collider.gameObject, true));
+					StartCoroutine (UncoverCard (hit.collider.gameObject, true));
+					StartCoroutine (MatchCard (hit.collider.gameObject));
 				}
 			}
 		}
 	}
 
-	IEnumerator uncoverCard(GameObject cardGameObject, bool uncover){
+	IEnumerator UncoverCard(GameObject cardGameObject, bool uncover){
+
+		Debug.Log ("UncoverCard");
 
 		Transform card = cardGameObject.transform;
 
@@ -148,14 +157,30 @@ public class CardController : MonoBehaviour {
 		}
 		isTurning = false;
 		yield return 0;
-
-		matchCards (cardGameObject);
 	}
 
-	void matchCards(GameObject card) {
+	IEnumerator MatchCard(GameObject cardGameObject) {
 
-		selectedCards.Add (card);
-		//etc
-		Debug.Log ("matchCards");
+		yield return new WaitForSeconds(1);
+
+		selectedCards.Add (cardGameObject);	
+		Debug.Log ("selectedCards.Count " + selectedCards.Count);
+
+		if (selectedCards.Count == 2) {
+		
+			GameObject cardOne = selectedCards [0];
+			GameObject cardTwo = selectedCards [1];
+			CardScript scriptOne = cardOne.GetComponent<CardScript> ();
+			CardScript scriptTwo = cardTwo.GetComponent<CardScript> ();
+			if (scriptOne.CardPairName.Equals (scriptTwo.CardPairName)) {
+				Debug.Log ("We have a match!");
+			} else {
+				Debug.Log ("Not a match");
+				StartCoroutine (UncoverCard (cardOne, false));
+				StartCoroutine (UncoverCard (cardTwo, false));
+			}
+			selectedCards.Clear ();
+		}
+		yield return null;
 	}
 }
