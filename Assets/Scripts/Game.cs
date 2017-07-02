@@ -32,6 +32,7 @@ public class Game : MonoBehaviour {
 
 	public void OnClickPlay() {
 		playButton.gameObject.SetActive (false);
+		board.gameObject.SetActive (true);
 		CreateDeck ();
 		ShuffleDeck ();
 		DealCards ();
@@ -39,9 +40,20 @@ public class Game : MonoBehaviour {
 	}
 
 	void ClearAll() {
+		Debug.Log ("ClearAll()");
+
+
+		for (int j = deck.Count; j > 0; j--) {
+			DestroyImmediate (deck [j]);
+		}
+
 		deck.Clear ();
 		selectedCards.Clear ();
 		matchedCards.Clear ();
+		playButton.gameObject.SetActive (true);
+
+		board.transform.position = new Vector3 (0f, 0f, 0f);
+		board.gameObject.SetActive (false);
 	}
 
 	void PositionBoard() {
