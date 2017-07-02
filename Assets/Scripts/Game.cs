@@ -33,7 +33,7 @@ public class Game : MonoBehaviour {
 	void PositionBoard() {
 		float offsetX = -(gridWidth * (cardWidth + gridPadding) - (cardWidth + gridPadding))/2.0f;
 		//assume square board
-		float offsetY = offsetX;//-(gridHeight/2.0f)*(cardHeight - gridPadding) + cardHeight/2.0f;
+		float offsetY = offsetX;
 
 		board.transform.position = new Vector3 (offsetX, offsetY, 0f);
 	}
@@ -68,8 +68,8 @@ public class Game : MonoBehaviour {
 				cardWidth = (int)frontSprites[i].rect.width;
 				cardHeight = (int)frontSprites[i].rect.height;
 
-				Debug.Log (cardWidth);
-				Debug.Log (cardHeight);
+				//Debug.Log (cardWidth);
+				//Debug.Log (cardHeight);
 
 				card.tag = "Card";
 				card.transform.parent = transform;
@@ -96,8 +96,8 @@ public class Game : MonoBehaviour {
 			cardHeight = (int)backSprite.rect.height;
 			float x = ((i % gridWidth) * (cardWidth + gridPadding));
 			float y = yCounter * (cardHeight + gridPadding);
-			Debug.Log ("x: " + x + " y" + y);
-			Debug.Log("i % gridWidth: " + (i % gridWidth));
+			//Debug.Log ("x: " + x + " y" + y);
+			//Debug.Log("i % gridWidth: " + (i % gridWidth));
 			card.transform.position = new Vector3 (x, y, 0f);
 			if ((i % gridWidth) == (gridWidth-1)) {
 				yCounter++;
@@ -161,6 +161,14 @@ public class Game : MonoBehaviour {
 
 	IEnumerator MatchCard(GameObject cardGameObject) {
 
+		bool sameCardClicked = CheckIfSameCardClicked (cardGameObject);
+		if (sameCardClicked) {
+			selectedCards.Clear ();
+			Debug.Log ("Exiting MatchCard coroutine");
+			yield break;
+		}
+		Debug.Log ("Not excitng Matchcard coroutine");
+
 		yield return new WaitForSeconds(1);
 
 		selectedCards.Add (cardGameObject);	
@@ -182,5 +190,18 @@ public class Game : MonoBehaviour {
 			selectedCards.Clear ();
 		}
 		yield return null;
+	}
+
+	private bool CheckIfSameCardClicked(GameObject card) {
+
+		if (selectedCards.Count < 1) {
+			return false;
+		}
+
+		if (selectedCards [0] == card) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 }
