@@ -5,68 +5,100 @@ using UnityEngine;
 public class CardController : MonoBehaviour {
 
 	public Sprite[] frontSprites;
-	public Sprite[] backSprites;
-	List<GameObject> cards;
-	public float uncoverTime = 12.0f;
+	public Sprite backSprite;
+	List <GameObject> deck;
+	List<GameObject> selectedCards;
+	List<GameObject> matchedCards;
+	public float uncoverTime = 1.0f;
 	public int gridPadding = 10;
 	private bool isTurning = false;
-	public int gridWidth;
-	public int gridHeight;
+	public int gridWidth = 4;
+	public int numPairs = 8;
 	private int cardWidth;
 	private int cardHeight;
 	public GameObject board;
 
-	// Use this for initialization
+
 	void Start () {
-		cards = new List<GameObject> ();
-		initCards ();
-		Debug.Log ("Start done");
+		deck = new List<GameObject> ();
+		selectedCards = new List<GameObject> ();
+		matchedCards = new List<GameObject> ();
+
+		CreateDeck ();
+		ShuffleDeck ();
+		DealCards ();
+		PositionBoard ();
 	}
 
-	public void initCards() {
-		for (int i = 0; i < gridWidth; i++) {
-			for (int j = 0; j < gridHeight; j++) {
-					GameObject card = new GameObject ("Card"); // parent object
-					GameObject cardFront = new GameObject ("CardFront");
-					GameObject cardBack = new GameObject ("CardBack");
-
-					cardFront.transform.parent = card.transform; // make front child of card
-					cardBack.transform.parent = card.transform; // make back child of card
-
-					// front (motive)
-					cardFront.AddComponent<SpriteRenderer> ();
-					cardFront.GetComponent<SpriteRenderer> ().sprite = frontSprites[i];
-					cardFront.GetComponent<SpriteRenderer> ().sortingOrder = -1;
-
-					// back
-					cardBack.AddComponent<SpriteRenderer> ();
-					cardBack.GetComponent<SpriteRenderer> ().sprite = backSprites[i];
-					cardBack.GetComponent<SpriteRenderer> ().sortingOrder = 1;
-
-					cardWidth = (int)frontSprites[i].rect.width;
-					cardHeight = (int)frontSprites[i].rect.height;
-
-					Debug.Log (cardWidth);
-					Debug.Log (cardHeight);
-
-					card.tag = "Card";
-					card.transform.parent = transform;
-
-					card.AddComponent<BoxCollider2D> ();
-					card.GetComponent<BoxCollider2D> ().size = new Vector2 (cardWidth, cardHeight);
-					float x = i * (cardWidth + gridPadding);
-					float y = j * (cardHeight + gridPadding);
-					card.transform.position = new Vector3 (x, y, 0f);
-					cards.Add (card);
-			}
-		}
-
-		float offsetX = -(gridWidth/2.0f)*(cardWidth - gridPadding) + cardWidth/2.0f;
-		float offsetY = -(gridHeight/2.0f)*(cardHeight - gridPadding) + cardHeight/2.0f;
+	void PositionBoard() {
+		float offsetX = -(gridWidth * (cardWidth + gridPadding) - (cardWidth + gridPadding))/2.0f;
+		//assume square board
+		float offsetY = offsetX;//-(gridHeight/2.0f)*(cardHeight - gridPadding) + cardHeight/2.0f;
 
 		board.transform.position = new Vector3 (offsetX, offsetY, 0f);
 	}
 
+	void CreateDeck() {
+		int pair = 2;
+		for (int i = 0; i < (numPairs); i++) {
+			for (int j = 0; j < pair; j++) {
+				GameObject card = new GameObject ("Card"); // parent object
+				GameObject cardFront = new GameObject ("CardFront");
+				GameObject cardBack = new GameObject ("CardBack");
+
+				cardFront.transform.parent = card.transform; // make front child of card
+				cardBack.transform.parent = card.transform; // make back child of card
+
+				// front (motive)
+				cardFront.AddComponent<SpriteRenderer> ();
+				cardFront.GetComponent<SpriteRenderer> ().sprite = frontSprites[i];
+				cardFront.GetComponent<SpriteRenderer> ().sortingOrder = -1;
+
+				// back
+				cardBack.AddComponent<SpriteRenderer> ();
+				cardBack.GetComponent<SpriteRenderer> ().sprite = backSprite;
+				cardBack.GetComponent<SpriteRenderer> ().sortingOrder = 1;
+
+				cardWidth = (int)frontSprites[i].rect.width;
+				cardHeight = (int)frontSprites[i].rect.height;
+
+				Debug.Log (cardWidth);
+				Debug.Log (cardHeight);
+
+				card.tag = "Card";
+				card.transform.parent = transform;
+
+				card.AddComponent<BoxCollider2D> ();
+				card.GetComponent<BoxCollider2D> ().size = new Vector2 (cardWidth, cardHeight);
+
+				deck.Add (card);
+			}
+		}
+		Debug.Log ("CreateDeck(): " + deck.Count + " cards added to deck");
+	}
+
+	void ShuffleDeck() {
+		deck.Shuffle ();
+	}
+
+	void DealCards() {
+		int yCounter = 0;
+		for (int i = 0; i < deck.Count; i++) {
+			GameObject card = deck [i];
+
+			cardWidth = (int)backSprite.rect.width;
+			cardHeight = (int)backSprite.rect.height;
+			float x = ((i % gridWidth) * (cardWidth + gridPadding));
+			float y = yCounter * (cardHeight + gridPadding);
+			Debug.Log ("x: " + x + " y" + y);
+			Debug.Log("i % gridWidth: " + (i % gridWidth));
+			card.transform.position = new Vector3 (x, y, 0f);
+			if ((i % gridWidth) == (gridWidth-1)) {
+				yCounter++;
+			}
+		}
+	}
+		
 	// Update is called once per frame
 	void Update () {
 		if((Input.GetMouseButtonDown(0) || Input.touchCount > 0)) {
@@ -77,13 +109,15 @@ public class CardController : MonoBehaviour {
 				Debug.Log(hit.collider.gameObject.name);
 				if (!isTurning) {
 					isTurning = true;
-					StartCoroutine (uncoverCard (hit.collider.gameObject.transform, true));
+					StartCoroutine (uncoverCard (hit.collider.gameObject, true));
 				}
 			}
 		}
 	}
 
-	IEnumerator uncoverCard(Transform card, bool uncover){
+	IEnumerator uncoverCard(GameObject cardGameObject, bool uncover){
+
+		Transform card = cardGameObject.transform;
 
 		float minAngle = uncover ? 0 : 180;
 		float maxAngle = uncover ? 180 : 0; 
@@ -92,7 +126,7 @@ public class CardController : MonoBehaviour {
 		bool uncovered = false;
 
 		while(t < 1f) {
-			t += Time.deltaTime * uncoverTime;;
+			t += Time.deltaTime * 10 / uncoverTime;;
 
 			float angle = Mathf.LerpAngle(minAngle, maxAngle, t);
 			card.eulerAngles = new Vector3(0, angle, 0);
@@ -114,5 +148,14 @@ public class CardController : MonoBehaviour {
 		}
 		isTurning = false;
 		yield return 0;
+
+		matchCards (cardGameObject);
+	}
+
+	void matchCards(GameObject card) {
+
+		selectedCards.Add (card);
+		//etc
+		Debug.Log ("matchCards");
 	}
 }

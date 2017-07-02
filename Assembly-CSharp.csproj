@@ -6,7 +6,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{A7E49735-D01B-BCEF-1D69-7954EA0FFC2A}</ProjectGuid>
+    <ProjectGuid>{1048FC07-112F-0A7D-51DD-5EAF6920A498}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -46,11 +46,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Memory Game Starter Kit\Scripts\CardProperties.cs" />
-     <Compile Include="Assets\Memory Game Starter Kit\Scripts\Extensions.cs" />
-     <Compile Include="Assets\Memory Game Starter Kit\Scripts\GameController.cs" />
      <Compile Include="Assets\Scripts\CardController.cs" />
-     <None Include="Assets\Memory Game Starter Kit\Readme.txt" />
+     <Compile Include="Assets\old\Scripts\CardProperties.cs" />
+     <Compile Include="Assets\old\Scripts\Extensions.cs" />
+     <Compile Include="Assets\old\Scripts\GameController.cs" />
+     <None Include="Assets\old\Readme.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
