@@ -17,6 +17,7 @@ public class Game : MonoBehaviour {
 	private int cardWidth;
 	private int cardHeight;
 	public GameObject board;
+	public GameObject matchedCardFx;
 
 	//UI
 	public Button playButton;
@@ -217,6 +218,10 @@ public class Game : MonoBehaviour {
 				//StartCoroutine (UncoverCard (selectedCards [0], true));
 				//StartCoroutine (UncoverCard (selectedCards [1], true));
 			} else {
+
+
+				GameObject matchedFxOne = Instantiate (matchedCardFx, new Vector3(cardOne.transform.position.x, cardOne.transform.position.y, 0) , cardOne.transform.rotation) as GameObject;
+				GameObject matchedFxTwo = Instantiate (matchedCardFx, new Vector3(cardTwo.transform.position.x, cardTwo.transform.position.y, 0), cardTwo.transform.rotation) as GameObject;
 				matchedCards.Add (cardOne);
 				matchedCards.Add (cardTwo);
 				textMatchedPairs.text = "Matched Pairs: " + (matchedCards.Count / 2).ToString ();
