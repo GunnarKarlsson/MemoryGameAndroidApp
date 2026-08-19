@@ -38,11 +38,6 @@ Generated folders such as `Library/`, `Temp/`, and `obj/` are created by Unity a
 | `Assets/Prefabs/` | Match particle effect and card quad |
 | `Assets/Animations/` | Card animations |
 | `Assets/Materials/` | Particle and effect materials |
-| `Assets/old/` | Earlier starter-kit scripts, sounds, and sprites |
-
-## Credits
-
-Some sounds and sprites in `Assets/old/` come from [Kenney](https://kenney.nl/). An earlier memory-game starter kit by Eikester is kept under `Assets/old/` for reference.
 
 ## License
 
